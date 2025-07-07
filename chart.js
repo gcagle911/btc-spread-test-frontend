@@ -5,20 +5,21 @@ const chart = LightweightCharts.createChart(document.body, {
         background: { color: 'black' },
         textColor: 'white',
     },
-    grid: {
-        vertLines: { color: '#444' },
-        horzLines: { color: '#444' },
-    },
-    timeScale: {
-        timeVisible: true,
-        secondsVisible: false,
-    },
 });
 
 const spreadLine = chart.addLineSeries({
     color: 'aqua',
     lineWidth: 2,
 });
+
+// Add this debug label to the screen
+const debugDiv = document.createElement('div');
+debugDiv.style.position = 'absolute';
+debugDiv.style.top = '10px';
+debugDiv.style.left = '10px';
+debugDiv.style.color = 'white';
+debugDiv.style.fontSize = '14px';
+document.body.appendChild(debugDiv);
 
 fetch('https://btc-spread-test-pipeline.onrender.com/output.json')
     .then(response => response.json())
@@ -31,4 +32,11 @@ fetch('https://btc-spread-test-pipeline.onrender.com/output.json')
             }));
 
         spreadLine.setData(spreadData);
+
+        // DEBUG: Show how many points were loaded
+        debugDiv.innerText = `Loaded: ${spreadData.length} points`;
+    })
+    .catch(err => {
+        debugDiv.innerText = `Error loading data`;
+        console.error(err);
     });
