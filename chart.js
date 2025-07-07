@@ -1,4 +1,4 @@
-const chart = LightweightCharts.createChart(document.getElementById('tv_chart'), {
+const chart = LightweightCharts.createChart(document.body, {
   width: window.innerWidth,
   height: window.innerHeight,
   layout: {
@@ -12,9 +12,15 @@ const lineSeries = chart.addLineSeries({
   lineWidth: 2,
 });
 
-lineSeries.setData([
-  { time: 1650000000, value: 0.01 },
-  { time: 1650000060, value: 0.012 },
-  { time: 1650000120, value: 0.009 },
-  { time: 1650000180, value: 0.011 },
-]);
+fetch('https://btc-spread-test-pipeline.onrender.com/output.json')
+  .then(response => response.json())
+  .then(data => {
+    const formattedData = data.map(item => ({
+      time: Math.floor(new Date(item.time).getTime() / 1000), // convert ISO to UNIX
+      value: item.spread_avg_L20_pct, // plot spread %
+    }));
+    lineSeries.setData(formattedData);
+  })
+  .catch(error => {
+    console.error('Error loading data:', error);
+  });
