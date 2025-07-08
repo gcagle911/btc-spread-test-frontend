@@ -17,10 +17,21 @@
         height: 100vh;
         width: 100vw;
       }
+      #error {
+        color: red;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.7);
+        padding: 5px 10px;
+        border-radius: 4px;
+        z-index: 10;
+      }
     </style>
   </head>
   <body>
     <div id="chart"></div>
+    <div id="error" style="display:none;"></div>
     <script src="chart.js"></script>
   </body>
 </html>
