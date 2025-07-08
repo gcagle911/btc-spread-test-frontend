@@ -1,107 +1,45 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const chartContainer = document.getElementById('chart');
-  const errorDiv = document.getElementById('error');
-  if (!chartContainer) {
-    console.error('Chart container not found!');
-    if (errorDiv) {
-      errorDiv.style.display = '';
-      errorDiv.textContent = 'Chart container not found!';
-    }
-    return;
-  }
-
-  const chart = LightweightCharts.createChart(chartContainer, {
-    layout: {
-      background: { color: 'black' },
-      textColor: 'white'
-    },
-    width: window.innerWidth,
-    height: window.innerHeight,
-    timeScale: {
-      timeVisible: true,
-      secondsVisible: false,
-    },
-    rightPriceScale: { visible: true },
-    leftPriceScale: {
-      visible: true,
-      borderVisible: true,
-    },
-  });
-
-  // Price line
-  const priceSeries = chart.addLineSeries({
-    color: 'aqua',
-    lineWidth: 2,
-    priceScaleId: 'right',
-  });
-
-  // MA series
-  const ma50 = chart.addLineSeries({
-    color: 'white',
-    lineWidth: 1,
-    priceScaleId: 'left',
-  });
-  const ma100 = chart.addLineSeries({
-    color: 'gold',
-    lineWidth: 1,
-    priceScaleId: 'left',
-  });
-  const ma200 = chart.addLineSeries({
-    color: 'pink',
-    lineWidth: 1,
-    priceScaleId: 'left',
-  });
-
-  // Convert ISO to UNIX timestamp (seconds)
-  const toUnixTime = iso => Math.floor(new Date(iso).getTime() / 1000);
-
-  fetch('https://btc-spread-test-pipeline.onrender.com/output-latest.json')
-    .then(res => {
-      if (!res.ok) throw new Error(`Network error: ${res.status}`);
-      // CORS check: If CORS is the problem, this will not even resolve
-      return res.json();
-    })
-    .then(data => {
-      if (!Array.isArray(data) || data.length === 0) {
-        throw new Error('No data or wrong format from API!');
-      }
-      const filtered = data.filter(d =>
-        d.time && d.price != null && d.ma_50 != null && d.ma_100 != null && d.ma_200 != null
-      );
-      if (filtered.length === 0) {
-        throw new Error('No data points with all required fields!');
-      }
-
-      priceSeries.setData(filtered.map(d => ({
-        time: toUnixTime(d.time),
-        value: d.price,
-      })));
-
-      ma50.setData(filtered.map(d => ({
-        time: toUnixTime(d.time),
-        value: d.ma_50,
-      })));
-
-      ma100.setData(filtered.map(d => ({
-        time: toUnixTime(d.time),
-        value: d.ma_100,
-      })));
-
-      ma200.setData(filtered.map(d => ({
-        time: toUnixTime(d.time),
-        value: d.ma_200,
-      })));
-    })
-    .catch(err => {
-      console.error('Chart error:', err);
-      if (errorDiv) {
-        errorDiv.style.display = '';
-        errorDiv.textContent = 'Chart error: ' + err.message;
-      }
-    });
-
-  // Responsive chart
-  window.addEventListener('resize', () => {
-    chart.applyOptions({ width: window.innerWidth, height: window.innerHeight });
-  });
+const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+  layout: { background: { color: '#000' }, textColor: '#ccc' },
+  grid: { vertLines: { color: '#222' }, horzLines: { color: '#222' }},
+  timeScale: { timeVisible: true, secondsVisible: true },
 });
+
+const candleSeries = chart.addCandlestickSeries();
+const ma50 = chart.addLineSeries({ color: 'white', lineWidth: 2 });
+const ma100 = chart.addLineSeries({ color: 'gold', lineWidth: 2 });
+const ma200 = chart.addLineSeries({ color: 'pink', lineWidth: 2 });
+
+async function loadPriceAndMA() {
+  const res = await fetch('https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=60');
+  const rawCandles = await res.json();
+
+  const candles = rawCandles.map(c => ({
+    time: c[0],
+    open: c[3],
+    high: c[2],
+    low: c[1],
+    close: c[4],
+  })).reverse();
+
+  candleSeries.setData(candles);
+
+  const maRes = await fetch('https://btc-spread-test-pipeline.onrender.com/output.json');
+  const maJson = await maRes.json();
+
+  const ma50Data = [];
+  const ma100Data = [];
+  const ma200Data = [];
+
+  maJson.forEach(entry => {
+    const timestamp = Math.floor(new Date(entry.time).getTime() / 1000);
+    if (entry.ma_50 !== null) ma50Data.push({ time: timestamp, value: entry.ma_50 });
+    if (entry.ma_100 !== null) ma100Data.push({ time: timestamp, value: entry.ma_100 });
+    if (entry.ma_200 !== null) ma200Data.push({ time: timestamp, value: entry.ma_200 });
+  });
+
+  ma50.setData(ma50Data);
+  ma100.setData(ma100Data);
+  ma200.setData(ma200Data);
+}
+
+loadPriceAndMA();
