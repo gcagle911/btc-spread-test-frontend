@@ -10,6 +10,7 @@ const ma100 = chart.addLineSeries({ color: 'gold', lineWidth: 2 });
 const ma200 = chart.addLineSeries({ color: 'pink', lineWidth: 2 });
 
 async function loadPriceAndMA() {
+  // 1. Get candlestick data from Coinbase
   const res = await fetch('https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=60');
   const rawCandles = await res.json();
 
@@ -23,7 +24,8 @@ async function loadPriceAndMA() {
 
   candleSeries.setData(candles);
 
-  const maRes = await fetch('https://btc-spread-test-pipeline.onrender.com/output.json');
+  // 2. Get your MAs from Render
+  const maRes = await fetch('https://btc-spread-test-pipeline.onrender.com/output-latest.json');
   const maJson = await maRes.json();
 
   const ma50Data = [];
