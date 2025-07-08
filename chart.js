@@ -1,63 +1,73 @@
-const chart = LightweightCharts.createChart(document.body, {
-  layout: { background: { color: 'black' }, textColor: 'white' },
-  rightPriceScale: { visible: true },
-  leftPriceScale: { visible: true },
-  timeScale: { timeVisible: true, secondsVisible: false },
+const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+  layout: {
+    background: { color: 'black' },
+    textColor: 'white'
+  },
   width: window.innerWidth,
   height: window.innerHeight,
+  timeScale: {
+    timeVisible: true,
+    secondsVisible: false,
+  },
+  rightPriceScale: { visible: true },
+  leftPriceScale: {
+    visible: true,
+    borderVisible: true,
+  },
 });
 
-// BTC Price line on right Y-axis
-const priceLine = chart.addLineSeries({
+// Price line
+const priceSeries = chart.addLineSeries({
   color: 'aqua',
   lineWidth: 2,
   priceScaleId: 'right',
 });
 
-// Spread MAs on left Y-axis
+// MA series
 const ma50 = chart.addLineSeries({
   color: 'white',
-  lineWidth: 2,
+  lineWidth: 1,
   priceScaleId: 'left',
 });
 const ma100 = chart.addLineSeries({
   color: 'gold',
-  lineWidth: 2,
+  lineWidth: 1,
   priceScaleId: 'left',
 });
 const ma200 = chart.addLineSeries({
   color: 'pink',
-  lineWidth: 2,
+  lineWidth: 1,
   priceScaleId: 'left',
 });
 
-// Convert time to Unix timestamp (in seconds)
-const toUnixTime = timeStr => Math.floor(new Date(timeStr).getTime() / 1000);
+// Convert ISO to UNIX timestamp (seconds)
+const toUnixTime = iso => Math.floor(new Date(iso).getTime() / 1000);
 
 fetch('https://btc-spread-test-pipeline.onrender.com/output-latest.json')
-  .then(response => response.json())
+  .then(res => res.json())
   .then(data => {
-    const cleanData = data.filter(d =>
+    const filtered = data.filter(d =>
       d.time && d.price && d.ma_50 && d.ma_100 && d.ma_200
     );
 
-    priceLine.setData(cleanData.map(d => ({
+    priceSeries.setData(filtered.map(d => ({
       time: toUnixTime(d.time),
       value: d.price,
     })));
-    ma50.setData(cleanData.map(d => ({
+
+    ma50.setData(filtered.map(d => ({
       time: toUnixTime(d.time),
       value: d.ma_50,
     })));
-    ma100.setData(cleanData.map(d => ({
+
+    ma100.setData(filtered.map(d => ({
       time: toUnixTime(d.time),
       value: d.ma_100,
     })));
-    ma200.setData(cleanData.map(d => ({
+
+    ma200.setData(filtered.map(d => ({
       time: toUnixTime(d.time),
       value: d.ma_200,
     })));
   })
-  .catch(error => {
-    console.error('Error loading data:', error);
-  });
+  .catch(err => console.error('Chart error:', err));
