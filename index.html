@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>BTC Spread Chart</title>
+    <title>BTC Price Chart</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
@@ -14,24 +14,58 @@
         width: 100%;
       }
       #chart {
-        height: 100vh;
+        height: 90vh;
         width: 100vw;
       }
-      #error {
-        color: red;
+      #status {
+        color: #fff;
+        background: #222;
+        padding: 8px 20px;
+        font-family: monospace;
+        font-size: 14px;
         position: absolute;
         top: 10px;
         left: 10px;
-        background: rgba(0,0,0,0.7);
-        padding: 5px 10px;
-        border-radius: 4px;
-        z-index: 10;
+        z-index: 20;
+        border-radius: 5px;
+        opacity: 0.95;
       }
+      #legend {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 20;
+        background: #222;
+        color: #fff;
+        padding: 8px 20px;
+        font-size: 14px;
+        border-radius: 5px;
+        font-family: monospace;
+        opacity: 0.95;
+      }
+      .legend-color {
+        display: inline-block;
+        width: 18px;
+        height: 5px;
+        margin-right: 8px;
+        border-radius: 3px;
+        vertical-align: middle;
+      }
+      .aqua { background: aqua; }
+      .white { background: white; }
+      .gold { background: gold; }
+      .pink { background: pink; }
     </style>
   </head>
   <body>
     <div id="chart"></div>
-    <div id="error" style="display:none;"></div>
+    <div id="status">Loading chart…</div>
+    <div id="legend">
+      <div><span class="legend-color aqua"></span>BTC Price (right axis)</div>
+      <div><span class="legend-color white"></span>MA 50 (left axis)</div>
+      <div><span class="legend-color gold"></span>MA 100 (left axis)</div>
+      <div><span class="legend-color pink"></span>MA 200 (left axis)</div>
+    </div>
     <script src="chart.js"></script>
   </body>
 </html>
