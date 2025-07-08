@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
-    <title>BTC Spread Chart</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <meta charset="utf-8" />
+    <title>BTC Chart + MAs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       html, body {
         margin: 0;
@@ -17,21 +16,11 @@
         height: 100vh;
         width: 100vw;
       }
-      #error {
-        color: red;
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0,0,0,0.7);
-        padding: 5px 10px;
-        border-radius: 4px;
-        z-index: 10;
-      }
     </style>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   </head>
   <body>
     <div id="chart"></div>
-    <div id="error" style="display:none;"></div>
     <script src="chart.js"></script>
   </body>
 </html>
