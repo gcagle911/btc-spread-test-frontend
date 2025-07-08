@@ -21,7 +21,7 @@ debugDiv.style.color = 'white';
 debugDiv.style.fontSize = '14px';
 document.body.appendChild(debugDiv);
 
-fetch('https://btc-spread-test-pipeline.onrender.com/output.json')
+fetch('https://btc-spread-test-pipeline.onrender.com/output-latest.json')
     .then(response => response.json())
     .then(data => {
         const spreadData = data
